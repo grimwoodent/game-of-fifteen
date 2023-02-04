@@ -1,4 +1,6 @@
+import type { Size } from '../types';
+
 export interface Field {
-  readonly size: { width: number; height: number };
+  readonly size: Size;
   toMatrix(): Array<number | null>;
 }

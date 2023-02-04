@@ -1,8 +1,9 @@
 import type { Renderer } from './renderer/Renderer';
-import ConsoleRenderer from './renderer/ConsoleRenderer';
 import LinearField from './field/LinearField';
-import DomRenderer from './renderer/DomRenderer';
-import './styles/index.scss';
+import ConsoleRenderer from './renderer/console/ConsoleRenderer';
+import DomRenderer from './renderer/dom/DomRenderer';
+import type { Point } from './types';
+import './index.scss';
 
 class Game {
   private field = new LinearField(4, 4);
@@ -12,13 +13,12 @@ class Game {
   ) {}
 
   init(): Game {
-    this.renderers.forEach((renderer) => renderer.init({
-      moveBlock: (x: number, y: number) => {
-        this.moveBlock(x, y);
+    this.renderers.forEach((renderer) => renderer.init(this.field, {
+      requestMoveBlock: async (point: Point) => {
+        await this.moveBlock(point);
         this.render();
       },
     }));
-
 
     return this;
   }
@@ -27,18 +27,18 @@ class Game {
     this.render();
   }
 
-  private moveBlock(x: number, y: number) {
-    console.log(x, y);
+  private async moveBlock(point: Point): Promise<void> {
+    await Promise.allSettled(this.renderers.map((renderer) => renderer.moveBlock(point, 1)));
   }
 
   private render() {
-    this.renderers.forEach((renderer) => renderer.render(this.field));
+    this.renderers.forEach((renderer) => renderer.render());
   }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   (new Game([
     new ConsoleRenderer(),
-    new DomRenderer(document.getElementById('field')),
+    new DomRenderer(document.getElementById('content')),
   ])).init().start();
 });

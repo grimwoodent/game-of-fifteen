@@ -1,3 +1,37 @@
+.field > div {
+  display: flex; }
+  .field > div > span {
+    display: block;
+    width: 80px;
+    height: 80px;
+    border: 1px solid;
+    border-radius: 5px;
+    text-align: center;
+    font-size: 40px;
+    line-height: 80px;
+    margin: 6px;
+    cursor: pointer;
+    background-color: var(--layer1secondary);
+    color: var(--layer1primary);
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none; }
+    .field > div > span:hover {
+      animation: shake-block 0.3s; }
+    .field > div > span.active {
+      background-color: var(--layer2secondary);
+      color: var(--layer2primary); }
+
+@keyframes shake-block {
+  0% {
+    transform: rotate(0deg); }
+  25% {
+    transform: rotate(3deg); }
+  75% {
+    transform: rotate(-3deg); }
+  100% {
+    transform: rotate(0deg); } }
+
 :root {
   --backgroundMain: #005E29;
   --layer1primary: #44E389;
@@ -19,34 +53,3 @@ body {
   justify-content: center;
   align-items: center;
   flex-wrap: nowrap; }
-
-.field > div {
-  display: flex; }
-  .field > div > span {
-    display: block;
-    width: 80px;
-    height: 80px;
-    border: 1px solid;
-    border-radius: 5px;
-    text-align: center;
-    font-size: 40px;
-    line-height: 80px;
-    margin: 6px;
-    cursor: pointer;
-    background-color: var(--layer1secondary);
-    color: var(--layer1primary);
-    -webkit-user-select: none;
-    -ms-user-select: none;
-    user-select: none; }
-    .field > div > span:hover {
-      animation: shake-block 0.3s; }
-
-@keyframes shake-block {
-  0% {
-    transform: rotate(0deg); }
-  25% {
-    transform: rotate(3deg); }
-  75% {
-    transform: rotate(-3deg); }
-  100% {
-    transform: rotate(0deg); } }

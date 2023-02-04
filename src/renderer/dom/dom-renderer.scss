@@ -26,6 +26,11 @@ $blockSize: 80px;
       &:hover {
         animation: shake-block 0.3s;
       }
+
+      &.active {
+        background-color: var(--layer2secondary);
+        color: var(--layer2primary);
+      }
     }
   }
 }

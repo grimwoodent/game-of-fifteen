@@ -1,3 +1,6 @@
-export const enum ACTION_CLASS {
-  BLOCK = 'js-block',
+export const enum MOVE_DIRECTION {
+  UP = 1,
+  RIGHT,
+  DOWN,
+  LEFT,
 }
