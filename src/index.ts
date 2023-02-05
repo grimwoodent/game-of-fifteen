@@ -14,10 +14,7 @@ class Game {
 
   init(): Game {
     this.renderers.forEach((renderer) => renderer.init(this.field, {
-      requestMoveBlock: async (point: Point) => {
-        await this.moveBlock(point);
-        this.render();
-      },
+      requestMoveValue: (value) => this.requestMoveBlock(value),
     }));
 
     return this;
@@ -27,8 +24,16 @@ class Game {
     this.render();
   }
 
-  private async moveBlock(point: Point): Promise<void> {
-    await Promise.allSettled(this.renderers.map((renderer) => renderer.moveBlock(point, 1)));
+  private async requestMoveBlock(value: number | null): Promise<void> {
+    const direction = this.field.moveValue(value);
+
+    if (direction === null) {
+      await Promise.allSettled(this.renderers.map((renderer) => renderer.cantMoveBlock(value)));
+      return;
+    }
+
+    await Promise.allSettled(this.renderers.map((renderer) => renderer.moveBlock(value, 1)));
+    this.render();
   }
 
   private render() {

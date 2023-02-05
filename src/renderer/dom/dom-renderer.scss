@@ -1,4 +1,5 @@
 $blockSize: 80px;
+$shakeAnimation: shake-block 0.3s;
 
 .field {
   & > div {
@@ -18,18 +19,23 @@ $blockSize: 80px;
       cursor: pointer;
       background-color: var(--layer1secondary);
       color: var(--layer1primary);
+      transition: scale .3s;
 
       -webkit-user-select: none;
       -ms-user-select: none;
       user-select: none;
 
       &:hover {
-        animation: shake-block 0.3s;
+        scale: 105%;
       }
 
       &.active {
         background-color: var(--layer2secondary);
         color: var(--layer2primary);
+      }
+
+      &.blocked {
+        animation: $shakeAnimation;
       }
     }
   }
@@ -37,7 +43,7 @@ $blockSize: 80px;
 
 @keyframes shake-block {
   0% { transform: rotate(0deg); }
-  25% { transform: rotate(3deg); }
-  75% { transform: rotate(-3deg); }
+  25% { transform: rotate(5deg); }
+  75% { transform: rotate(-5deg); }
   100% { transform: rotate(0deg); }
 }

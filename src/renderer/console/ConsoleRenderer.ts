@@ -1,11 +1,24 @@
-import type { Point } from '../../types';
 import type { MOVE_DIRECTION } from '../../enums';
 import AbstractRenderer from '../AbstractRenderer';
 import ConsoleRendererBlock from './ConsoleRendererBlock';
 
+declare global {
+  interface Window {
+    moveNumber(value: number): void;
+  }
+}
+
 export default class ConsoleRenderer extends AbstractRenderer<
   ConsoleRendererBlock
 > {
+  constructor() {
+    super();
+    window.moveNumber = (value: number) => {
+      if (typeof value !== 'number') { throw new Error('Input type must be Number'); }
+      this.rendererEvents.requestMoveValue?.(value);
+    };
+  }
+
   render(): void {
     const field = this.field;
     if (!field) { throw new Error('Field not found'); }
@@ -29,8 +42,13 @@ export default class ConsoleRenderer extends AbstractRenderer<
     console.log(result + '\r\n');
   }
 
-  async moveBlock(point: Point, direction: MOVE_DIRECTION): Promise<void> {
-    const block = this.findBlockByPoint(point);
-    await block?.hightlight();
+  async moveBlock(value: number | null): Promise<void> {
+    const block = this.findBlockByValue(value);
+    await block?.showMoved();
+  }
+
+  async cantMoveBlock(value: number | null): Promise<void> {
+    const block = this.findBlockByValue(value);
+    await block?.showBlocked();
   }
 }

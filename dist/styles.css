@@ -13,22 +13,25 @@
     cursor: pointer;
     background-color: var(--layer1secondary);
     color: var(--layer1primary);
+    transition: scale .3s;
     -webkit-user-select: none;
     -ms-user-select: none;
     user-select: none; }
     .field > div > span:hover {
-      animation: shake-block 0.3s; }
+      scale: 105%; }
     .field > div > span.active {
       background-color: var(--layer2secondary);
       color: var(--layer2primary); }
+    .field > div > span.blocked {
+      animation: shake-block 0.3s; }
 
 @keyframes shake-block {
   0% {
     transform: rotate(0deg); }
   25% {
-    transform: rotate(3deg); }
+    transform: rotate(5deg); }
   75% {
-    transform: rotate(-3deg); }
+    transform: rotate(-5deg); }
   100% {
     transform: rotate(0deg); } }
 

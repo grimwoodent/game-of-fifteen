@@ -45,20 +45,24 @@ export default class DomRenderer extends AbstractRenderer<
     }
   }
 
-  async moveBlock(point: Point, direction: MOVE_DIRECTION): Promise<void> {
-    const block = this.findBlockByPoint(point);
-    await block?.hightlight();
+  async moveBlock(value: number | null, direction: MOVE_DIRECTION): Promise<void> {
+    const block = this.findBlockByValue(value);
+    await block?.showMoved(direction);
+  }
+
+  async cantMoveBlock(value: number | null): Promise<void> {
+    const block = this.findBlockByValue(value);
+    await block?.showBlocked();
   }
 
   protected onMainElementClick(e: Event): void {
     const target = e.target || e.srcElement;
     if (!target || !(target instanceof HTMLElement)) { return; }
     if (!target.classList.contains(ACTION_CLASS.BLOCK)) { return; }
-    if (!target.dataset.x || !target.dataset.y) { return; }
 
-    this.rendererEvents.requestMoveBlock?.({
-      x: parseInt(target.dataset.x, 10),
-      y: parseInt(target.dataset.y, 10),
-    });
+    const block = this.blocks.find((block) => block.isElement(target));
+    if (!block) { return; }
+
+    this.rendererEvents.requestMoveValue?.(block.value);
   }
 }
