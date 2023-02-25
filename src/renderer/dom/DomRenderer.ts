@@ -11,6 +11,8 @@ export default class DomRenderer extends AbstractRenderer<
 > {
   protected fieldElement: HTMLElement;
 
+  protected completedElement: HTMLElement | null = null;
+
   constructor(targetElement: HTMLElement) {
     super();
     assertTargetElement(targetElement);
@@ -18,6 +20,11 @@ export default class DomRenderer extends AbstractRenderer<
     targetElement.append(this.fieldElement);
     this.fieldElement.classList.add('field');
     this.fieldElement.addEventListener('click', this.onMainElementClick.bind(this));
+
+    this.completedElement = document.createElement('div');
+    targetElement.append(this.completedElement);
+    this.completedElement.innerText = 'Completed!';
+    this.completedElement.classList.add('completed');
   }
 
   async render(): Promise<void> {
@@ -58,7 +65,7 @@ export default class DomRenderer extends AbstractRenderer<
   }
 
   async displayCompleted(): Promise<void> {
-    // @TODO display logic
+    this.completedElement.classList.add('display');
     await nextAnimationFrame();
   }
 

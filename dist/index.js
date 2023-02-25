@@ -334,6 +334,7 @@ class DomRendererBlock {
 
 class DomRenderer extends AbstractRenderer {
     fieldElement;
+    completedElement = null;
     constructor(targetElement) {
         super();
         assertTargetElement(targetElement);
@@ -341,6 +342,10 @@ class DomRenderer extends AbstractRenderer {
         targetElement.append(this.fieldElement);
         this.fieldElement.classList.add('field');
         this.fieldElement.addEventListener('click', this.onMainElementClick.bind(this));
+        this.completedElement = document.createElement('div');
+        targetElement.append(this.completedElement);
+        this.completedElement.innerText = 'Completed!';
+        this.completedElement.classList.add('completed');
     }
     async render() {
         const field = this.field;
@@ -373,7 +378,7 @@ class DomRenderer extends AbstractRenderer {
         await block?.showBlocked();
     }
     async displayCompleted() {
-        // @TODO display logic
+        this.completedElement.classList.add('display');
         await nextAnimationFrame();
     }
     onMainElementClick(e) {

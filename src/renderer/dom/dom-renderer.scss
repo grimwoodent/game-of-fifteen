@@ -6,7 +6,27 @@ $moveDownAnimation: move-down-block $moveAnimationTime;
 $moveLeftAnimation: move-left-block $moveAnimationTime;
 $moveRightAnimation: move-right-block $moveAnimationTime;
 
+.completed {
+  display: none;
+  position: absolute;
+  z-index: 50;
+  font-size: 50px;
+  color: var(--layer2secondary);
+  background-color: var(--layer2primary);
+  border: 3px solid var(--layer2secondary);
+  border-radius: 20px;
+  padding: 20px;
+
+  &.display {
+    display: block;
+  }
+}
+
 .field {
+  border: 3px solid var(--layer2primary);
+  border-radius: 20px;
+  padding: 20px;
+
   & > div {
     display: flex;
 
@@ -38,8 +58,8 @@ $moveRightAnimation: move-right-block $moveAnimationTime;
       }
 
       &.active {
-        background-color: var(--layer2secondary);
         color: var(--layer2primary);
+        scale: 105%;
       }
 
       &.blocked {
@@ -63,20 +83,24 @@ $moveRightAnimation: move-right-block $moveAnimationTime;
 
 @keyframes move-up-block {
   0% { transform: translate(0, 0); }
+  80% { transform: translate(0, -100%); }
   100% { transform: translate(0, -100%); }
 }
 
 @keyframes move-down-block {
   0% { transform: translate(0, 0); }
+  80% { transform: translate(0, 100%); }
   100% { transform: translate(0, 100%); }
 }
 
 @keyframes move-left-block {
   0% { transform: translate(0, 0); }
+  80% { transform: translate(-100%, 0); }
   100% { transform: translate(-100%, 0); }
 }
 
 @keyframes move-right-block {
   0% { transform: translate(0, 0); }
+  80% { transform: translate(100%, 0); }
   100% { transform: translate(100%, 0); }
 }
