@@ -4,16 +4,19 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest --config=jest.config.ts",
     "build": "rollup --config rollup.config.js --configPlugin typescript"
   },
   "author": "grimwoodent",
   "license": "ISC",
   "devDependencies": {
     "@rollup/plugin-typescript": "^11.0.0",
+    "jest": "^29.4.3",
     "node-sass": "^8.0.0",
     "rollup": "^3.13.0",
     "rollup-plugin-scss": "^4.0.0",
+    "ts-jest": "^29.0.5",
+    "ts-node": "^10.9.1",
     "tslib": "^2.5.0"
   }
 }
