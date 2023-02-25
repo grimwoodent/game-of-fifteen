@@ -1,8 +1,5 @@
 'use strict';
 
-function isPointsEqual(a, b) {
-    return a.x === b.x && a.y === b.y;
-}
 function getRandomBetween(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
@@ -64,13 +61,14 @@ function checkSolvability(matrix) {
     return !!(swapsCount % 2);
 }
 function fixSolvability(matrix) {
+    console.log(checkSolvability(matrix));
     if (checkSolvability(matrix)) {
         return matrix;
     }
     // just swap two first nonnull elements to make even inversions number
     let from = undefined;
     let to = undefined;
-    for (const [cell, index] of matrix.entries()) {
+    for (const [index, cell] of matrix.entries()) {
         if (cell === null) {
             continue;
         }
@@ -100,6 +98,21 @@ function generateBlendedArray(size) {
     result.push(null);
     return result;
 }
+function isFieldCompleted(matrix) {
+    // null is not last
+    if (matrix[matrix.length - 1] !== null) {
+        return false;
+    }
+    return matrix.findIndex((cell, index) => {
+        // do not check last null element
+        if (index + 1 >= matrix.length - 1) {
+            return false;
+        }
+        const next = matrix[index + 1];
+        // cell greater than next
+        return cell >= next;
+    }) === -1;
+}
 
 class LinearField {
     width;
@@ -118,6 +131,9 @@ class LinearField {
             width: this.width,
             height: this.height,
         };
+    }
+    get isCompleted() {
+        return isFieldCompleted(this.toMatrix());
     }
     toMatrix() {
         return [...this.values];
@@ -151,6 +167,10 @@ class LinearField {
         }
         return null;
     }
+}
+
+function isPointsEqual(a, b) {
+    return a.x === b.x && a.y === b.y;
 }
 
 class AbstractRenderer {
@@ -220,6 +240,7 @@ class ConsoleRenderer extends AbstractRenderer {
             result += '\r\n';
         }
         console.log(result + '\r\n');
+        return Promise.resolve();
     }
     async moveBlock(value) {
         const block = this.findBlockByValue(value);
@@ -229,12 +250,23 @@ class ConsoleRenderer extends AbstractRenderer {
         const block = this.findBlockByValue(value);
         await block?.showBlocked();
     }
+    displayCompleted() {
+        console.log('Completed!');
+        return Promise.resolve();
+    }
 }
 
 function assertTargetElement(target) {
     if (!target || !(target instanceof HTMLElement) || !target.isConnected) {
         throw new Error('Renderer target element not found');
     }
+}
+function nextAnimationFrame() {
+    return new Promise((resolve) => {
+        window.requestAnimationFrame(() => {
+            window.requestAnimationFrame(() => resolve());
+        });
+    });
 }
 
 class DomRendererBlock {
@@ -287,7 +319,7 @@ class DomRenderer extends AbstractRenderer {
         this.fieldElement.classList.add('field');
         this.fieldElement.addEventListener('click', this.onMainElementClick.bind(this));
     }
-    render() {
+    async render() {
         const field = this.field;
         if (!field) {
             throw new Error('Field not found');
@@ -307,6 +339,7 @@ class DomRenderer extends AbstractRenderer {
                 block.appendTo(lineElement);
             }
         }
+        await nextAnimationFrame();
     }
     async moveBlock(value, direction) {
         const block = this.findBlockByValue(value);
@@ -315,6 +348,10 @@ class DomRenderer extends AbstractRenderer {
     async cantMoveBlock(value) {
         const block = this.findBlockByValue(value);
         await block?.showBlocked();
+    }
+    async displayCompleted() {
+        // @TODO display logic
+        await nextAnimationFrame();
     }
     onMainElementClick(e) {
         const target = e.target || e.srcElement;
@@ -354,10 +391,16 @@ class Game {
             return;
         }
         await Promise.allSettled(this.renderers.map((renderer) => renderer.moveBlock(value, 1)));
-        this.render();
+        await this.render();
+        if (this.field.isCompleted) {
+            this.displayCompleted();
+        }
     }
-    render() {
-        this.renderers.forEach((renderer) => renderer.render());
+    async render() {
+        await Promise.allSettled(this.renderers.map((renderer) => renderer.render()));
+    }
+    displayCompleted() {
+        this.renderers.forEach((renderer) => renderer.displayCompleted());
     }
 }
 document.addEventListener('DOMContentLoaded', () => {

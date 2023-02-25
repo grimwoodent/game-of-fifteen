@@ -1,7 +1,11 @@
 import type { Field } from './Field';
 import type { Size } from '../types';
 import { MOVE_DIRECTION } from '../enums';
-import { fixSolvability, generateBlendedArray } from '../utils';
+import {
+  fixSolvability,
+  generateBlendedArray,
+  isFieldCompleted,
+} from './utils';
 
 export default class LinearField implements Field {
   private readonly values: Array<number | null> = [];
@@ -19,6 +23,10 @@ export default class LinearField implements Field {
       width: this.width,
       height: this.height,
     };
+  }
+
+  get isCompleted(): boolean {
+    return isFieldCompleted(this.toMatrix());
   }
 
   toMatrix(): Array<number | null> {

@@ -3,7 +3,7 @@ import type { MOVE_DIRECTION } from '../../enums';
 import AbstractRenderer from '../AbstractRenderer';
 import DomRendererBlock from './DomRendererBlock';
 import { ACTION_CLASS } from './enums';
-import { assertTargetElement } from './utils';
+import { assertTargetElement, nextAnimationFrame } from './utils';
 import './dom-renderer.scss';
 
 export default class DomRenderer extends AbstractRenderer<
@@ -20,7 +20,7 @@ export default class DomRenderer extends AbstractRenderer<
     this.fieldElement.addEventListener('click', this.onMainElementClick.bind(this));
   }
 
-  render(): void {
+  async render(): Promise<void> {
     const field = this.field;
     if (!field) { throw new Error('Field not found'); }
 
@@ -43,6 +43,8 @@ export default class DomRenderer extends AbstractRenderer<
         block.appendTo(lineElement);
       }
     }
+
+    await nextAnimationFrame();
   }
 
   async moveBlock(value: number | null, direction: MOVE_DIRECTION): Promise<void> {
@@ -53,6 +55,11 @@ export default class DomRenderer extends AbstractRenderer<
   async cantMoveBlock(value: number | null): Promise<void> {
     const block = this.findBlockByValue(value);
     await block?.showBlocked();
+  }
+
+  async displayCompleted(): Promise<void> {
+    // @TODO display logic
+    await nextAnimationFrame();
   }
 
   protected onMainElementClick(e: Event): void {

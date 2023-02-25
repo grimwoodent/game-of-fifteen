@@ -2,7 +2,6 @@ import type { Renderer } from './renderer/Renderer';
 import LinearField from './field/LinearField';
 import ConsoleRenderer from './renderer/console/ConsoleRenderer';
 import DomRenderer from './renderer/dom/DomRenderer';
-import type { Point } from './types';
 import './index.scss';
 
 class Game {
@@ -33,11 +32,17 @@ class Game {
     }
 
     await Promise.allSettled(this.renderers.map((renderer) => renderer.moveBlock(value, 1)));
-    this.render();
+    await this.render();
+
+    if (this.field.isCompleted) { this.displayCompleted(); }
   }
 
-  private render() {
-    this.renderers.forEach((renderer) => renderer.render());
+  private async render(): Promise<void> {
+    await Promise.allSettled(this.renderers.map((renderer) => renderer.render()));
+  }
+
+  private displayCompleted(): void {
+    this.renderers.forEach((renderer) => renderer.displayCompleted());
   }
 }
 

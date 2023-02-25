@@ -5,6 +5,7 @@ import {
   findEmptyCellRowIndex,
   checkSolvability,
   fixSolvability,
+  isFieldCompleted,
 } from './utils';
 
 describe('utils', () => {
@@ -68,6 +69,14 @@ describe('utils', () => {
         3, null,
       ])).toBe(true);
       expect(checkSolvability([
+        2,  3,
+        1, null,
+      ])).toBe(true);
+      expect(checkSolvability([
+        3,  2,
+        1, null,
+      ])).toBe(false);
+      expect(checkSolvability([
         1, null,
         3, 2,
       ])).toBe(true);
@@ -104,6 +113,10 @@ describe('utils', () => {
   describe('fixSolvability', () => {
     it('should keep solvable matrix', () => {
       expect(checkSolvability(fixSolvability([
+        3,  2,
+        null, 1,
+      ]))).toBe(true);
+      expect(checkSolvability(fixSolvability([
         1, 2,
         3, null,
       ]))).toBe(true);
@@ -124,6 +137,44 @@ describe('utils', () => {
         4, 5, 6,
         7, 8, null,
       ]))).toBe(true);
+    });
+  });
+
+  describe('isFieldCompleted', () => {
+    it('should check null position', () => {
+      expect(isFieldCompleted([
+        1, 2, 3,
+        4, 5, 6,
+        7, 8, null,
+      ])).toBe(true);
+      expect(isFieldCompleted([
+        1, 2, 3,
+        4, 5, 6,
+        7, null, 8,
+      ])).toBe(false);
+      expect(isFieldCompleted([
+        null, 1, 2,
+        3, 4, 5,
+        6, 7, 8,
+      ])).toBe(false);
+    });
+
+    it('should check numbers order', () => {
+      expect(isFieldCompleted([
+        1, 2, 3,
+        4, 5, 6,
+        7, 8, null,
+      ])).toBe(true);
+      expect(isFieldCompleted([
+        2, 1, 3,
+        4, 5, 6,
+        7, 8, null,
+      ])).toBe(false);
+      expect(isFieldCompleted([
+        1, 2, 3,
+        4, 5, 6,
+        8, 7, null,
+      ])).toBe(false);
     });
   });
 });

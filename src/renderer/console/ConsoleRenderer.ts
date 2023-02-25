@@ -19,7 +19,7 @@ export default class ConsoleRenderer extends AbstractRenderer<
     };
   }
 
-  render(): void {
+  render(): Promise<void> {
     const field = this.field;
     if (!field) { throw new Error('Field not found'); }
 
@@ -40,6 +40,8 @@ export default class ConsoleRenderer extends AbstractRenderer<
     }
 
     console.log(result + '\r\n');
+
+    return Promise.resolve();
   }
 
   async moveBlock(value: number | null): Promise<void> {
@@ -50,5 +52,10 @@ export default class ConsoleRenderer extends AbstractRenderer<
   async cantMoveBlock(value: number | null): Promise<void> {
     const block = this.findBlockByValue(value);
     await block?.showBlocked();
+  }
+
+  displayCompleted(): Promise<void> {
+    console.log('Completed!');
+    return Promise.resolve();
   }
 }
