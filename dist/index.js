@@ -1,5 +1,267 @@
 'use strict';
 
+function isPointsEqual(a, b) {
+    return a.x === b.x && a.y === b.y;
+}
+
+class AbstractRenderer {
+    rendererEvents = {};
+    field;
+    blocks = [];
+    init(field, rendererEvents) {
+        this.field = field;
+        this.rendererEvents = rendererEvents || {};
+    }
+    setFieldDisplayState(state) {
+        return Promise.resolve();
+    }
+    setCompletedInfoDisplayState(state) {
+        return Promise.resolve();
+    }
+    findBlockByPoint(point) {
+        return this.blocks.find((block) => isPointsEqual(point, block.position));
+    }
+    findBlockByValue(value) {
+        return this.blocks.find((block) => value === block.value);
+    }
+}
+
+const directionLabelMap = {
+    [1 /* MOVE_DIRECTION.UP */]: ' up',
+    [3 /* MOVE_DIRECTION.DOWN */]: 'down',
+    [4 /* MOVE_DIRECTION.LEFT */]: 'left',
+    [2 /* MOVE_DIRECTION.RIGHT */]: 'right',
+};
+class ConsoleRendererBlock {
+    position;
+    value;
+    constructor(position, value) {
+        this.position = position;
+        this.value = value;
+    }
+    getLabel() {
+        return this.value !== null
+            ? (this.value < 10 ? `  ${this.value}` : ` ${this.value}`)
+            : '   ';
+    }
+    showMoved(direction) {
+        const label = directionLabelMap[direction] || 'unknown direction';
+        console.log(`Move "${this.value || 'empty'}" block ${label}`);
+        return Promise.resolve();
+    }
+    showBlocked() {
+        console.log(`Can't move "${this.value || 'empty'}" block`);
+        return Promise.resolve();
+    }
+}
+
+class ConsoleRenderer extends AbstractRenderer {
+    render() {
+        const field = this.field;
+        if (!field) {
+            throw new Error('Field not found');
+        }
+        const { height, width } = field.size;
+        const matrix = field.toMatrix();
+        let result = '';
+        this.blocks = [];
+        for (let y = 0; y < height; y++) {
+            for (let x = 0; x < width; x++) {
+                const value = matrix[y * width + x];
+                const block = new ConsoleRendererBlock({ x, y }, value);
+                this.blocks.push(block);
+                result += block.getLabel();
+            }
+            result += '\r\n';
+        }
+        console.log(result + '\r\n');
+        return Promise.resolve();
+    }
+    async moveBlock(value, direction) {
+        const block = this.findBlockByValue(value);
+        await block?.showMoved(direction);
+    }
+    async cantMoveBlock(value) {
+        const block = this.findBlockByValue(value);
+        if (!block) {
+            console.log(`Block "${value}" not found`);
+            return;
+        }
+        await block.showBlocked();
+    }
+    setFieldDisplayState(state) {
+        if (state) {
+            console.log(`***************************************
+         Game commands:
+         
+   Start new Game for N-sized field: 
+       game.restartGame(N);
+       
+     Move N number block: 
+       game.moveNumber(N);
+       
+***************************************
+`);
+        }
+        return Promise.resolve();
+    }
+    setCompletedInfoDisplayState(state) {
+        if (state) {
+            console.log('Completed!');
+        }
+        return Promise.resolve();
+    }
+}
+
+function assertTargetElement(target) {
+    if (!target || !(target instanceof HTMLElement) || !target.isConnected) {
+        throw new Error('Renderer target element not found');
+    }
+}
+function nextAnimationFrame() {
+    return new Promise((resolve) => {
+        window.requestAnimationFrame(() => {
+            window.requestAnimationFrame(() => resolve());
+        });
+    });
+}
+
+const directionClassMap = {
+    [1 /* MOVE_DIRECTION.UP */]: 'move-up',
+    [3 /* MOVE_DIRECTION.DOWN */]: 'move-down',
+    [4 /* MOVE_DIRECTION.LEFT */]: 'move-left',
+    [2 /* MOVE_DIRECTION.RIGHT */]: 'move-right',
+};
+class DomRendererBlock {
+    position;
+    value;
+    element;
+    constructor(position, value) {
+        this.position = position;
+        this.value = value;
+        this.element = document.createElement('span');
+        this.element.innerHTML = String(value || '');
+        this.element.classList.add("js-block" /* ACTION_CLASS.BLOCK */);
+        if (value === null) {
+            this.element.classList.add('empty');
+        }
+        this.element.dataset.x = String(position.x);
+        this.element.dataset.y = String(position.y);
+    }
+    isElement(targetElement) {
+        return this.element === targetElement;
+    }
+    appendTo(targetElement) {
+        assertTargetElement(targetElement);
+        targetElement.append(this.element);
+    }
+    showMoved(direction) {
+        return new Promise((resolve) => {
+            const moveAnimationClass = directionClassMap[direction];
+            this.element.classList.add('active');
+            if (moveAnimationClass) {
+                this.element.classList.add(moveAnimationClass);
+            }
+            window.setTimeout(() => {
+                this.element.classList.remove('active');
+                if (moveAnimationClass) {
+                    this.element.classList.remove(moveAnimationClass);
+                }
+                resolve();
+            }, 300);
+        });
+    }
+    showBlocked() {
+        return new Promise((resolve) => {
+            this.element.classList.add('blocked');
+            window.setTimeout(() => {
+                this.element.classList.remove('blocked');
+                resolve();
+            }, 300);
+        });
+    }
+}
+
+class DomRenderer extends AbstractRenderer {
+    fieldElement;
+    completedElement = null;
+    constructor(targetElement) {
+        super();
+        assertTargetElement(targetElement);
+        targetElement.innerHTML = '';
+        this.fieldElement = document.createElement('div');
+        targetElement.append(this.fieldElement);
+        this.fieldElement.classList.add('field');
+        this.fieldElement.addEventListener('click', this.onMainElementClick.bind(this));
+        this.completedElement = document.createElement('div');
+        targetElement.append(this.completedElement);
+        this.completedElement.innerText = 'Completed!';
+        this.completedElement.classList.add('completed');
+    }
+    async setFieldDisplayState(state) {
+        if (state) {
+            this.fieldElement.classList.add('shown');
+        }
+        else {
+            this.fieldElement.classList.remove('shown');
+        }
+        await nextAnimationFrame();
+    }
+    async setCompletedInfoDisplayState(state) {
+        if (state) {
+            this.completedElement.classList.add('shown');
+        }
+        else {
+            this.completedElement.classList.remove('shown');
+        }
+        await nextAnimationFrame();
+    }
+    async render() {
+        const field = this.field;
+        if (!field) {
+            throw new Error('Field not found');
+        }
+        assertTargetElement(this.fieldElement);
+        const { height, width } = field.size;
+        const matrix = field.toMatrix();
+        this.fieldElement.innerHTML = '';
+        this.blocks = [];
+        for (let y = 0; y < height; y++) {
+            const lineElement = document.createElement('div');
+            this.fieldElement.append(lineElement);
+            for (let x = 0; x < width; x++) {
+                const value = matrix[y * width + x];
+                const block = new DomRendererBlock({ x, y }, value);
+                this.blocks.push(block);
+                block.appendTo(lineElement);
+            }
+        }
+        await nextAnimationFrame();
+    }
+    async moveBlock(value, direction) {
+        const block = this.findBlockByValue(value);
+        await block?.showMoved(direction);
+    }
+    async cantMoveBlock(value) {
+        const block = this.findBlockByValue(value);
+        await block?.showBlocked();
+    }
+    onMainElementClick(e) {
+        const target = e.target || e.srcElement;
+        if (!target || !(target instanceof HTMLElement)) {
+            return;
+        }
+        if (!target.classList.contains("js-block" /* ACTION_CLASS.BLOCK */)) {
+            return;
+        }
+        const block = this.blocks.find((block) => block.isElement(target));
+        if (!block) {
+            return;
+        }
+        this.rendererEvents.requestMoveValue?.(block.value);
+    }
+}
+
 function getRandomBetween(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
@@ -169,250 +431,36 @@ class LinearField {
     }
 }
 
-function isPointsEqual(a, b) {
-    return a.x === b.x && a.y === b.y;
-}
-
-class AbstractRenderer {
-    rendererEvents = {};
-    field;
-    blocks = [];
-    init(field, rendererEvents) {
-        this.field = field;
-        this.rendererEvents = rendererEvents || {};
-    }
-    findBlockByPoint(point) {
-        return this.blocks.find((block) => isPointsEqual(point, block.position));
-    }
-    findBlockByValue(value) {
-        return this.blocks.find((block) => value === block.value);
-    }
-}
-
-const directionLabelMap = {
-    [1 /* MOVE_DIRECTION.UP */]: ' up',
-    [3 /* MOVE_DIRECTION.DOWN */]: 'down',
-    [4 /* MOVE_DIRECTION.LEFT */]: 'left',
-    [2 /* MOVE_DIRECTION.RIGHT */]: 'right',
-};
-class ConsoleRendererBlock {
-    position;
-    value;
-    constructor(position, value) {
-        this.position = position;
-        this.value = value;
-    }
-    getLabel() {
-        return this.value !== null
-            ? (this.value < 10 ? `  ${this.value}` : ` ${this.value}`)
-            : '   ';
-    }
-    showMoved(direction) {
-        const label = directionLabelMap[direction] || 'unknown direction';
-        console.log(`Move "${this.value || 'empty'}" block ${label}`);
-        return Promise.resolve();
-    }
-    showBlocked() {
-        console.log(`Can't move "${this.value || 'empty'}" block`);
-        return Promise.resolve();
-    }
-}
-
-class ConsoleRenderer extends AbstractRenderer {
-    constructor() {
-        super();
-        window.moveNumber = (value) => {
-            if (typeof value !== 'number') {
-                throw new Error('Input type must be Number');
-            }
-            this.rendererEvents.requestMoveValue?.(value);
-        };
-    }
-    render() {
-        const field = this.field;
-        if (!field) {
-            throw new Error('Field not found');
-        }
-        const { height, width } = field.size;
-        const matrix = field.toMatrix();
-        let result = '';
-        this.blocks = [];
-        for (let y = 0; y < height; y++) {
-            for (let x = 0; x < width; x++) {
-                const value = matrix[y * width + x];
-                const block = new ConsoleRendererBlock({ x, y }, value);
-                this.blocks.push(block);
-                result += block.getLabel();
-            }
-            result += '\r\n';
-        }
-        console.log(result + '\r\n');
-        return Promise.resolve();
-    }
-    async moveBlock(value, direction) {
-        const block = this.findBlockByValue(value);
-        await block?.showMoved(direction);
-    }
-    async cantMoveBlock(value) {
-        const block = this.findBlockByValue(value);
-        await block?.showBlocked();
-    }
-    displayCompleted() {
-        console.log('Completed!');
-        return Promise.resolve();
-    }
-}
-
-function assertTargetElement(target) {
-    if (!target || !(target instanceof HTMLElement) || !target.isConnected) {
-        throw new Error('Renderer target element not found');
-    }
-}
-function nextAnimationFrame() {
-    return new Promise((resolve) => {
-        window.requestAnimationFrame(() => {
-            window.requestAnimationFrame(() => resolve());
-        });
-    });
-}
-
-const directionClassMap = {
-    [1 /* MOVE_DIRECTION.UP */]: 'move-up',
-    [3 /* MOVE_DIRECTION.DOWN */]: 'move-down',
-    [4 /* MOVE_DIRECTION.LEFT */]: 'move-left',
-    [2 /* MOVE_DIRECTION.RIGHT */]: 'move-right',
-};
-class DomRendererBlock {
-    position;
-    value;
-    element;
-    constructor(position, value) {
-        this.position = position;
-        this.value = value;
-        this.element = document.createElement('span');
-        this.element.innerHTML = String(value || '');
-        this.element.classList.add("js-block" /* ACTION_CLASS.BLOCK */);
-        if (value === null) {
-            this.element.classList.add('empty');
-        }
-        this.element.dataset.x = String(position.x);
-        this.element.dataset.y = String(position.y);
-    }
-    isElement(targetElement) {
-        return this.element === targetElement;
-    }
-    appendTo(targetElement) {
-        assertTargetElement(targetElement);
-        targetElement.append(this.element);
-    }
-    showMoved(direction) {
-        return new Promise((resolve) => {
-            const moveAnimationClass = directionClassMap[direction];
-            this.element.classList.add('active');
-            if (moveAnimationClass) {
-                this.element.classList.add(moveAnimationClass);
-            }
-            window.setTimeout(() => {
-                this.element.classList.remove('active');
-                if (moveAnimationClass) {
-                    this.element.classList.remove(moveAnimationClass);
-                }
-                resolve();
-            }, 300);
-        });
-    }
-    showBlocked() {
-        return new Promise((resolve) => {
-            this.element.classList.add('blocked');
-            window.setTimeout(() => {
-                this.element.classList.remove('blocked');
-                resolve();
-            }, 300);
-        });
-    }
-}
-
-class DomRenderer extends AbstractRenderer {
-    fieldElement;
-    completedElement = null;
-    constructor(targetElement) {
-        super();
-        assertTargetElement(targetElement);
-        this.fieldElement = document.createElement('div');
-        targetElement.append(this.fieldElement);
-        this.fieldElement.classList.add('field');
-        this.fieldElement.addEventListener('click', this.onMainElementClick.bind(this));
-        this.completedElement = document.createElement('div');
-        targetElement.append(this.completedElement);
-        this.completedElement.innerText = 'Completed!';
-        this.completedElement.classList.add('completed');
-    }
-    async render() {
-        const field = this.field;
-        if (!field) {
-            throw new Error('Field not found');
-        }
-        assertTargetElement(this.fieldElement);
-        const { height, width } = field.size;
-        const matrix = field.toMatrix();
-        this.fieldElement.innerHTML = '';
-        this.blocks = [];
-        for (let y = 0; y < height; y++) {
-            const lineElement = document.createElement('div');
-            this.fieldElement.append(lineElement);
-            for (let x = 0; x < width; x++) {
-                const value = matrix[y * width + x];
-                const block = new DomRendererBlock({ x, y }, value);
-                this.blocks.push(block);
-                block.appendTo(lineElement);
-            }
-        }
-        await nextAnimationFrame();
-    }
-    async moveBlock(value, direction) {
-        const block = this.findBlockByValue(value);
-        await block?.showMoved(direction);
-    }
-    async cantMoveBlock(value) {
-        const block = this.findBlockByValue(value);
-        await block?.showBlocked();
-    }
-    async displayCompleted() {
-        this.completedElement.classList.add('display');
-        await nextAnimationFrame();
-    }
-    onMainElementClick(e) {
-        const target = e.target || e.srcElement;
-        if (!target || !(target instanceof HTMLElement)) {
-            return;
-        }
-        if (!target.classList.contains("js-block" /* ACTION_CLASS.BLOCK */)) {
-            return;
-        }
-        const block = this.blocks.find((block) => block.isElement(target));
-        if (!block) {
-            return;
-        }
-        this.rendererEvents.requestMoveValue?.(block.value);
-    }
-}
-
 class Game {
     renderers;
-    field = new LinearField(4, 4);
+    field = null;
     constructor(renderers) {
         this.renderers = renderers;
     }
-    init() {
+    init(size) {
+        if (size < 2 || size > 5) {
+            throw new Error('Allowed only 2, 3, 4 and 5 sized fields');
+        }
+        this.field = new LinearField(size, size);
         this.renderers.forEach((renderer) => renderer.init(this.field, {
             requestMoveValue: (value) => this.requestMoveBlock(value),
         }));
         return this;
     }
     start() {
+        this.renderers.forEach((renderer) => {
+            renderer.setCompletedInfoDisplayState(false);
+            renderer.setFieldDisplayState(true);
+        });
         this.render();
     }
     async requestMoveBlock(value) {
+        if (!this.field) {
+            throw new Error('Game is not inited');
+        }
+        if (typeof value !== 'number') {
+            throw new Error('Input type must be Number');
+        }
         const direction = this.field.moveValue(value);
         if (direction === null) {
             await Promise.allSettled(this.renderers.map((renderer) => renderer.cantMoveBlock(value)));
@@ -428,12 +476,27 @@ class Game {
         await Promise.allSettled(this.renderers.map((renderer) => renderer.render()));
     }
     displayCompleted() {
-        this.renderers.forEach((renderer) => renderer.displayCompleted());
+        this.renderers.forEach((renderer) => {
+            renderer.setCompletedInfoDisplayState(true);
+            renderer.setFieldDisplayState(false);
+        });
     }
 }
-document.addEventListener('DOMContentLoaded', () => {
-    (new Game([
+
+(() => {
+    const game = (new Game([
         new ConsoleRenderer(),
         new DomRenderer(document.getElementById('content')),
-    ])).init().start();
-});
+    ]));
+    window.game = {
+        restartGame(size = 4) {
+            game.init(size).start();
+        },
+        moveNumber(value) {
+            game.requestMoveBlock(value);
+        },
+    };
+})();
+// document.addEventListener('DOMContentLoaded', () => {
+//   game.init(4).start();
+// });

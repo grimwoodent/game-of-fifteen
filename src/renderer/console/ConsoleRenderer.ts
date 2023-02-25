@@ -2,23 +2,9 @@ import type { MOVE_DIRECTION } from '../../enums';
 import AbstractRenderer from '../AbstractRenderer';
 import ConsoleRendererBlock from './ConsoleRendererBlock';
 
-declare global {
-  interface Window {
-    moveNumber(value: number): void;
-  }
-}
-
 export default class ConsoleRenderer extends AbstractRenderer<
   ConsoleRendererBlock
 > {
-  constructor() {
-    super();
-    window.moveNumber = (value: number) => {
-      if (typeof value !== 'number') { throw new Error('Input type must be Number'); }
-      this.rendererEvents.requestMoveValue?.(value);
-    };
-  }
-
   render(): Promise<void> {
     const field = this.field;
     if (!field) { throw new Error('Field not found'); }
@@ -51,11 +37,35 @@ export default class ConsoleRenderer extends AbstractRenderer<
 
   async cantMoveBlock(value: number | null): Promise<void> {
     const block = this.findBlockByValue(value);
-    await block?.showBlocked();
+
+    if (!block) {
+      console.log(`Block "${value}" not found`);
+      return;
+    }
+
+    await block.showBlocked();
   }
 
-  displayCompleted(): Promise<void> {
-    console.log('Completed!');
+  setFieldDisplayState(state: boolean): Promise<void> {
+    if (state) {
+      console.log(
+`***************************************
+         Game commands:
+         
+   Start new Game for N-sized field: 
+       game.restartGame(N);
+       
+     Move N number block: 
+       game.moveNumber(N);
+       
+***************************************
+`);
+    }
+    return Promise.resolve();
+  }
+
+  setCompletedInfoDisplayState(state: boolean): Promise<void> {
+    if (state) { console.log('Completed!'); }
     return Promise.resolve();
   }
 }

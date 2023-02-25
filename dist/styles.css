@@ -1,25 +1,3 @@
-:root {
-  --backgroundMain: #005E29;
-  --layer1primary: #44E389;
-  --layer2primary: #00DE60;
-  --layer1secondary: #286141;
-  --layer2secondary: #00AD4B; }
-
-html,
-body {
-  padding: 0;
-  margin: 0;
-  height: 100%;
-  background-color: var(--backgroundMain); }
-
-.content {
-  height: 100%;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: nowrap; }
-
 .completed {
   display: none;
   position: absolute;
@@ -30,13 +8,16 @@ body {
   border: 3px solid var(--layer2secondary);
   border-radius: 20px;
   padding: 20px; }
-  .completed.display {
+  .completed.shown {
     display: block; }
 
 .field {
+  display: none;
   border: 3px solid var(--layer2primary);
   border-radius: 20px;
   padding: 20px; }
+  .field.shown {
+    display: block; }
   .field > div {
     display: flex; }
     .field > div > span {
@@ -115,3 +96,66 @@ body {
     transform: translate(100%, 0); }
   100% {
     transform: translate(100%, 0); } }
+
+:root {
+  --backgroundMain: #005E29;
+  --layer1primary: #44E389;
+  --layer2primary: #00DE60;
+  --layer1secondary: #286141;
+  --layer2secondary: #00AD4B; }
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  height: 100%;
+  background-color: var(--backgroundMain); }
+
+.content {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: nowrap; }
+
+.menu {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 300px;
+  color: var(--layer2primary);
+  background-color: var(--layer2secondary);
+  border: 1px solid var(--layer2primary);
+  border-radius: 10px;
+  padding: 10px; }
+  .menu > .buttons {
+    height: 40px;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: space-evenly;
+    align-items: center; }
+    .menu > .buttons > button {
+      color: var(--layer1primary);
+      background-color: var(--layer1secondary);
+      border: 1px solid var(--layer1primary);
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 16px;
+      line-height: 16px;
+      width: 56px;
+      cursor: pointer; }
+      .menu > .buttons > button:hover {
+        color: var(--layer2secondary);
+        border-color: var(--layer2secondary); }
+      .menu > .buttons > button:active {
+        color: var(--layer2secondary);
+        background-color: var(--layer2primary);
+        border-color: var(--layer2secondary); }
+  .menu > .introduction {
+    color: var(--layer1secondary);
+    font-size: 16px;
+    line-height: 16px;
+    margin: 0 auto 8px;
+    text-align: center; }

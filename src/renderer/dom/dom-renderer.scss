@@ -17,15 +17,20 @@ $moveRightAnimation: move-right-block $moveAnimationTime;
   border-radius: 20px;
   padding: 20px;
 
-  &.display {
+  &.shown {
     display: block;
   }
 }
 
 .field {
+  display: none;
   border: 3px solid var(--layer2primary);
   border-radius: 20px;
   padding: 20px;
+
+  &.shown {
+    display: block;
+  }
 
   & > div {
     display: flex;

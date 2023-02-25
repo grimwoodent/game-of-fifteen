@@ -16,6 +16,7 @@ export default class DomRenderer extends AbstractRenderer<
   constructor(targetElement: HTMLElement) {
     super();
     assertTargetElement(targetElement);
+    targetElement.innerHTML = '';
     this.fieldElement = document.createElement('div');
     targetElement.append(this.fieldElement);
     this.fieldElement.classList.add('field');
@@ -25,6 +26,24 @@ export default class DomRenderer extends AbstractRenderer<
     targetElement.append(this.completedElement);
     this.completedElement.innerText = 'Completed!';
     this.completedElement.classList.add('completed');
+  }
+
+  async setFieldDisplayState(state: boolean): Promise<void> {
+    if (state) {
+      this.fieldElement.classList.add('shown');
+    } else {
+      this.fieldElement.classList.remove('shown');
+    }
+    await nextAnimationFrame();
+  }
+
+  async setCompletedInfoDisplayState(state: boolean): Promise<void> {
+    if (state) {
+      this.completedElement.classList.add('shown');
+    } else {
+      this.completedElement.classList.remove('shown');
+    }
+    await nextAnimationFrame();
   }
 
   async render(): Promise<void> {
@@ -62,11 +81,6 @@ export default class DomRenderer extends AbstractRenderer<
   async cantMoveBlock(value: number | null): Promise<void> {
     const block = this.findBlockByValue(value);
     await block?.showBlocked();
-  }
-
-  async displayCompleted(): Promise<void> {
-    this.completedElement.classList.add('display');
-    await nextAnimationFrame();
   }
 
   protected onMainElementClick(e: Event): void {

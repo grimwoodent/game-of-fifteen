@@ -19,13 +19,19 @@ export default abstract class AbstractRenderer<
     this.rendererEvents = rendererEvents || {};
   }
 
+  setFieldDisplayState(state: boolean): Promise<void> {
+    return Promise.resolve();
+  }
+
+  setCompletedInfoDisplayState(state: boolean): Promise<void> {
+    return Promise.resolve();
+  }
+
   abstract render(): Promise<void>;
 
   abstract moveBlock(value: number | null, direction: MOVE_DIRECTION): Promise<void>;
 
   abstract cantMoveBlock(value: number | null): Promise<void>;
-
-  abstract displayCompleted(): Promise<void>;
 
   findBlockByPoint(point: Point): Block | undefined {
     return this.blocks.find((block) => isPointsEqual(point, block.position));
