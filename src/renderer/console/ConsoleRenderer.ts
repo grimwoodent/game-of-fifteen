@@ -44,9 +44,9 @@ export default class ConsoleRenderer extends AbstractRenderer<
     return Promise.resolve();
   }
 
-  async moveBlock(value: number | null): Promise<void> {
+  async moveBlock(value: number | null, direction: MOVE_DIRECTION): Promise<void> {
     const block = this.findBlockByValue(value);
-    await block?.showMoved();
+    await block?.showMoved(direction);
   }
 
   async cantMoveBlock(value: number | null): Promise<void> {

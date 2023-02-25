@@ -26,19 +26,21 @@ body {
     display: block;
     width: 80px;
     height: 80px;
-    border: 1px solid;
+    border: 1px solid transparent;
     border-radius: 5px;
     text-align: center;
     font-size: 40px;
     line-height: 80px;
     margin: 6px;
-    cursor: pointer;
-    background-color: var(--layer1secondary);
-    color: var(--layer1primary);
     transition: scale .3s;
     -webkit-user-select: none;
     -ms-user-select: none;
     user-select: none; }
+    .field > div > span:not(.empty) {
+      cursor: pointer;
+      border-color: var(--layer2primary);
+      background-color: var(--layer1secondary);
+      color: var(--layer1primary); }
     .field > div > span:hover {
       scale: 105%; }
     .field > div > span.active {
@@ -46,6 +48,14 @@ body {
       color: var(--layer2primary); }
     .field > div > span.blocked {
       animation: shake-block 0.3s; }
+    .field > div > span.move-up {
+      animation: move-up-block 0.31s; }
+    .field > div > span.move-down {
+      animation: move-down-block 0.31s; }
+    .field > div > span.move-left {
+      animation: move-left-block 0.31s; }
+    .field > div > span.move-right {
+      animation: move-right-block 0.31s; }
 
 @keyframes shake-block {
   0% {
@@ -56,3 +66,27 @@ body {
     transform: rotate(-5deg); }
   100% {
     transform: rotate(0deg); } }
+
+@keyframes move-up-block {
+  0% {
+    transform: translate(0, 0); }
+  100% {
+    transform: translate(0, -100%); } }
+
+@keyframes move-down-block {
+  0% {
+    transform: translate(0, 0); }
+  100% {
+    transform: translate(0, 100%); } }
+
+@keyframes move-left-block {
+  0% {
+    transform: translate(0, 0); }
+  100% {
+    transform: translate(-100%, 0); } }
+
+@keyframes move-right-block {
+  0% {
+    transform: translate(0, 0); }
+  100% {
+    transform: translate(100%, 0); } }

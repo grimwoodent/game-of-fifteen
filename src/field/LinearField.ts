@@ -44,9 +44,9 @@ export default class LinearField implements Field {
     if (valueIndex === -1 || nullIndex === -1) { return direction; }
 
     if (nullIndex - valueIndex === -1 && (valueIndex % this.width > 0)) {
-      direction = MOVE_DIRECTION.RIGHT;
-    } else if (nullIndex - valueIndex === 1 && (nullIndex % this.width > 0)) {
       direction = MOVE_DIRECTION.LEFT;
+    } else if (nullIndex - valueIndex === 1 && (nullIndex % this.width > 0)) {
+      direction = MOVE_DIRECTION.RIGHT;
     } else if (nullIndex - valueIndex === -this.width) {
       direction = MOVE_DIRECTION.UP;
     } else if (nullIndex - valueIndex === this.width) {

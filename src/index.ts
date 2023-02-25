@@ -31,7 +31,7 @@ class Game {
       return;
     }
 
-    await Promise.allSettled(this.renderers.map((renderer) => renderer.moveBlock(value, 1)));
+    await Promise.allSettled(this.renderers.map((renderer) => renderer.moveBlock(value, direction)));
     await this.render();
 
     if (this.field.isCompleted) { this.displayCompleted(); }

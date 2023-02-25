@@ -149,10 +149,10 @@ class LinearField {
             return direction;
         }
         if (nullIndex - valueIndex === -1 && (valueIndex % this.width > 0)) {
-            direction = 2 /* MOVE_DIRECTION.RIGHT */;
+            direction = 4 /* MOVE_DIRECTION.LEFT */;
         }
         else if (nullIndex - valueIndex === 1 && (nullIndex % this.width > 0)) {
-            direction = 4 /* MOVE_DIRECTION.LEFT */;
+            direction = 2 /* MOVE_DIRECTION.RIGHT */;
         }
         else if (nullIndex - valueIndex === -this.width) {
             direction = 1 /* MOVE_DIRECTION.UP */;
@@ -189,6 +189,12 @@ class AbstractRenderer {
     }
 }
 
+const directionLabelMap = {
+    [1 /* MOVE_DIRECTION.UP */]: ' up',
+    [3 /* MOVE_DIRECTION.DOWN */]: 'down',
+    [4 /* MOVE_DIRECTION.LEFT */]: 'left',
+    [2 /* MOVE_DIRECTION.RIGHT */]: 'right',
+};
 class ConsoleRendererBlock {
     position;
     value;
@@ -201,8 +207,9 @@ class ConsoleRendererBlock {
             ? (this.value < 10 ? `  ${this.value}` : ` ${this.value}`)
             : '   ';
     }
-    showMoved() {
-        console.log(`Move "${this.value || 'empty'}" block`);
+    showMoved(direction) {
+        const label = directionLabelMap[direction] || 'unknown direction';
+        console.log(`Move "${this.value || 'empty'}" block ${label}`);
         return Promise.resolve();
     }
     showBlocked() {
@@ -242,9 +249,9 @@ class ConsoleRenderer extends AbstractRenderer {
         console.log(result + '\r\n');
         return Promise.resolve();
     }
-    async moveBlock(value) {
+    async moveBlock(value, direction) {
         const block = this.findBlockByValue(value);
-        await block?.showMoved();
+        await block?.showMoved(direction);
     }
     async cantMoveBlock(value) {
         const block = this.findBlockByValue(value);
@@ -269,6 +276,12 @@ function nextAnimationFrame() {
     });
 }
 
+const directionClassMap = {
+    [1 /* MOVE_DIRECTION.UP */]: 'move-up',
+    [3 /* MOVE_DIRECTION.DOWN */]: 'move-down',
+    [4 /* MOVE_DIRECTION.LEFT */]: 'move-left',
+    [2 /* MOVE_DIRECTION.RIGHT */]: 'move-right',
+};
 class DomRendererBlock {
     position;
     value;
@@ -279,6 +292,9 @@ class DomRendererBlock {
         this.element = document.createElement('span');
         this.element.innerHTML = String(value || '');
         this.element.classList.add("js-block" /* ACTION_CLASS.BLOCK */);
+        if (value === null) {
+            this.element.classList.add('empty');
+        }
         this.element.dataset.x = String(position.x);
         this.element.dataset.y = String(position.y);
     }
@@ -291,9 +307,16 @@ class DomRendererBlock {
     }
     showMoved(direction) {
         return new Promise((resolve) => {
+            const moveAnimationClass = directionClassMap[direction];
             this.element.classList.add('active');
+            if (moveAnimationClass) {
+                this.element.classList.add(moveAnimationClass);
+            }
             window.setTimeout(() => {
                 this.element.classList.remove('active');
+                if (moveAnimationClass) {
+                    this.element.classList.remove(moveAnimationClass);
+                }
                 resolve();
             }, 300);
         });
@@ -390,7 +413,7 @@ class Game {
             await Promise.allSettled(this.renderers.map((renderer) => renderer.cantMoveBlock(value)));
             return;
         }
-        await Promise.allSettled(this.renderers.map((renderer) => renderer.moveBlock(value, 1)));
+        await Promise.allSettled(this.renderers.map((renderer) => renderer.moveBlock(value, direction)));
         await this.render();
         if (this.field.isCompleted) {
             this.displayCompleted();
