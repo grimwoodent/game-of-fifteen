@@ -1,6 +1,7 @@
 import type { Field } from './Field';
 import type { Size } from '../types';
 import { MOVE_DIRECTION } from '../enums';
+import { fixSolvability, generateBlendedArray } from '../utils';
 
 export default class LinearField implements Field {
   private readonly values: Array<number | null> = [];
@@ -9,8 +10,8 @@ export default class LinearField implements Field {
     private width: number,
     private height: number,
   ) {
-    this.values = (new Array(width * height)).fill(null);
-    for (let i = 0; i < width * height - 1; i++) { this.values[i] = i + 1; }
+    if (width !== height) { throw new Error('Nonsquare fields is not implemented'); }
+    this.values = fixSolvability(generateBlendedArray(width * height));
   }
 
   get size(): Size {

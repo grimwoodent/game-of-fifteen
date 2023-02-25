@@ -4,6 +4,7 @@ import {
   getSwapsCount,
   findEmptyCellRowIndex,
   checkSolvability,
+  fixSolvability,
 } from './utils';
 
 describe('utils', () => {
@@ -97,6 +98,32 @@ describe('utils', () => {
         4, 5, 6,
         7, 8, null,
       ])).toBe(false);
+    });
+  });
+
+  describe('fixSolvability', () => {
+    it('should keep solvable matrix', () => {
+      expect(checkSolvability(fixSolvability([
+        1, 2,
+        3, null,
+      ]))).toBe(true);
+      expect(checkSolvability(fixSolvability([
+        1, 5, 2,
+        4, null, 3,
+        7, 8, 6,
+      ]))).toBe(true);
+    });
+
+    it('should fix unsolvable matrix', () => {
+      expect(checkSolvability(fixSolvability([
+        3, null,
+        1, 2,
+      ]))).toBe(true);
+      expect(checkSolvability(fixSolvability([
+        2, 1, 3,
+        4, 5, 6,
+        7, 8, null,
+      ]))).toBe(true);
     });
   });
 });

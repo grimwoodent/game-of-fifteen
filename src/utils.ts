@@ -4,6 +4,17 @@ export function isPointsEqual(a: Point, b: Point): boolean {
   return a.x === b.x && a.y === b.y;
 }
 
+function getRandomBetween(min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function swapCells(array: Array<number | null>, from: number, to: number): Array<number | null> {
+  const result = [...array];
+  result[from] = array[to];
+  result[to] = array[from];
+  return result;
+}
+
 export function getSwapsCount(matrix: Array<number | null>): number {
   let result = 0;
 
@@ -56,4 +67,36 @@ export function checkSolvability(matrix: Array<number | null>): boolean {
 
   if (emptyCellRowNumber % 2) { return !(swapsCount % 2); }
   return !!(swapsCount % 2);
+}
+
+export function fixSolvability(matrix: Array<number | null>): Array<number | null> {
+  if (checkSolvability(matrix)) { return matrix; }
+  // just swap two first nonnull elements to make even inversions number
+  let from = undefined;
+  let to = undefined;
+  for (const [cell, index] of matrix.entries()) {
+    if (cell === null) { continue; }
+    if (from === undefined) { from = index; continue; }
+    to = index; break;
+  }
+
+  if (from === undefined || to === undefined) { throw new Error('Unsolvable field'); }
+
+  return swapCells(matrix, from, to);
+}
+
+export function generateBlendedArray(size: number): Array<number | null> {
+  const linearArray = (new Array(size - 1)).fill(null).map((_, index) => index + 1);
+  const result: Array<number | null> = [];
+
+  while (linearArray.length > 0) {
+    const value = linearArray.splice(getRandomBetween(0, linearArray.length - 1), 1);
+    if (!value.length) { break; }
+    result.push(...value)
+  }
+
+  // keep null last one
+  result.push(null);
+
+  return result;
 }
