@@ -497,6 +497,3 @@ class Game {
         },
     };
 })();
-// document.addEventListener('DOMContentLoaded', () => {
-//   game.init(4).start();
-// });

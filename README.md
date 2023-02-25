@@ -2,7 +2,25 @@
 
 [Try it alive](https://grimwoodent.github.io/game-of-fifteen/)
 
-### Development
+#### Game example   
+
+![Game example image](/game-example.jpg?raw=true "Game example")
+
+#### Console controls
+
+- Start new Game for N-sized field:   
+``` javascript
+game.restartGame(N);   
+``` 
+
+- Move N number block:  
+``` javascript
+game.moveNumber(N);
+``` 
+
+---
+
+## Development
 
 Scripts: **TypeScript**  
 Styles: **Less**  
@@ -15,13 +33,13 @@ Tests: **Jest**
 npm i
 ```
 
-#### Build
+### Build
 
 ```
 npm run build
 ```
 
-#### Tests
+### Tests
  
 ```
 npm run test

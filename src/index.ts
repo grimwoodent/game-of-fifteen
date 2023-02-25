@@ -27,7 +27,3 @@ declare global {
     },
   }
 })();
-
-// document.addEventListener('DOMContentLoaded', () => {
-//   game.init(4).start();
-// });
