@@ -1,7 +1,7 @@
 import type { Point } from '../../types';
 import type { RendererBlock } from '../RendererBlock';
 import { ACTION_CLASS } from './enums';
-import { assertTargetElement } from './utils';
+import { assertTargetElement } from '../../utils';
 import { MOVE_DIRECTION } from '../../enums';
 
 const directionClassMap = {

@@ -6,6 +6,10 @@ export default class Game {
 
   constructor(
     private renderers: Renderer[],
+    private hooks?: {
+      beforeStart?(): void;
+      afterComplete?(): void;
+    },
   ) {}
 
   init(size: number): Game {
@@ -20,6 +24,7 @@ export default class Game {
   }
 
   start(): void {
+    this.hooks?.beforeStart?.();
     this.renderers.forEach((renderer) => {
       renderer.setCompletedInfoDisplayState(false);
       renderer.setFieldDisplayState(true);
@@ -53,5 +58,6 @@ export default class Game {
       renderer.setCompletedInfoDisplayState(true);
       renderer.setFieldDisplayState(false);
     });
+    this.hooks?.afterComplete?.();
   }
 }

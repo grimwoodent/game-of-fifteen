@@ -1,9 +1,8 @@
-import type { Point } from '../../types';
 import type { MOVE_DIRECTION } from '../../enums';
 import AbstractRenderer from '../AbstractRenderer';
 import DomRendererBlock from './DomRendererBlock';
 import { ACTION_CLASS } from './enums';
-import { assertTargetElement, nextAnimationFrame } from './utils';
+import { assertTargetElement, nextAnimationFrame } from '../../utils';
 import './dom-renderer.scss';
 
 export default class DomRenderer extends AbstractRenderer<

@@ -3,6 +3,18 @@
 function isPointsEqual(a, b) {
     return a.x === b.x && a.y === b.y;
 }
+function assertTargetElement(target) {
+    if (!target || !(target instanceof HTMLElement) || !target.isConnected) {
+        throw new Error('Renderer target element not found');
+    }
+}
+function nextAnimationFrame() {
+    return new Promise((resolve) => {
+        window.requestAnimationFrame(() => {
+            window.requestAnimationFrame(() => resolve());
+        });
+    });
+}
 
 class AbstractRenderer {
     rendererEvents = {};
@@ -111,19 +123,6 @@ class ConsoleRenderer extends AbstractRenderer {
         }
         return Promise.resolve();
     }
-}
-
-function assertTargetElement(target) {
-    if (!target || !(target instanceof HTMLElement) || !target.isConnected) {
-        throw new Error('Renderer target element not found');
-    }
-}
-function nextAnimationFrame() {
-    return new Promise((resolve) => {
-        window.requestAnimationFrame(() => {
-            window.requestAnimationFrame(() => resolve());
-        });
-    });
 }
 
 const directionClassMap = {
@@ -259,6 +258,35 @@ class DomRenderer extends AbstractRenderer {
             return;
         }
         this.rendererEvents.requestMoveValue?.(block.value);
+    }
+}
+
+class Menu {
+    targetElement;
+    triggerElement;
+    isOpened = true;
+    constructor(targetElement) {
+        this.targetElement = targetElement;
+        assertTargetElement(targetElement);
+        this.triggerElement = targetElement.querySelector('.js-trigger');
+        assertTargetElement(this.triggerElement);
+        this.triggerElement.addEventListener('click', this.toggle.bind(this));
+    }
+    toggle() {
+        if (this.isOpened) {
+            this.collapse();
+        }
+        else {
+            this.open();
+        }
+    }
+    open() {
+        this.targetElement.classList.remove('collapsed');
+        this.isOpened = true;
+    }
+    collapse() {
+        this.targetElement.classList.add('collapsed');
+        this.isOpened = false;
     }
 }
 
@@ -433,9 +461,11 @@ class LinearField {
 
 class Game {
     renderers;
+    hooks;
     field = null;
-    constructor(renderers) {
+    constructor(renderers, hooks) {
         this.renderers = renderers;
+        this.hooks = hooks;
     }
     init(size) {
         if (size < 2 || size > 5) {
@@ -448,6 +478,7 @@ class Game {
         return this;
     }
     start() {
+        this.hooks?.beforeStart?.();
         this.renderers.forEach((renderer) => {
             renderer.setCompletedInfoDisplayState(false);
             renderer.setFieldDisplayState(true);
@@ -480,14 +511,23 @@ class Game {
             renderer.setCompletedInfoDisplayState(true);
             renderer.setFieldDisplayState(false);
         });
+        this.hooks?.afterComplete?.();
     }
 }
 
 (() => {
+    const menu = new Menu(document.getElementById('menu'));
     const game = (new Game([
         new ConsoleRenderer(),
         new DomRenderer(document.getElementById('content')),
-    ]));
+    ], {
+        beforeStart() {
+            menu.collapse();
+        },
+        afterComplete() {
+            menu.open();
+        },
+    }));
     window.game = {
         restartGame(size = 4) {
             game.init(size).start();

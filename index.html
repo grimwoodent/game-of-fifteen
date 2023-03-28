@@ -8,13 +8,20 @@
   <link rel="stylesheet" href="./dist/styles.css">
 </head>
 <body>
-  <div id="menu" class="menu">
-    <div class="introduction">Start a new game</div>
-    <div class="buttons">
-      <button onclick="game.restartGame(2)">2</button>
-      <button onclick="game.restartGame(3)">3</button>
-      <button onclick="game.restartGame(4)">4</button>
-      <button onclick="game.restartGame(5)">5</button>
+  <div class="menu__wrapper">
+    <div id="menu" class="menu">
+      <div class="js-trigger trigger">
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+      <div class="introduction">Start a new game</div>
+      <div class="buttons">
+        <button onclick="game.restartGame(2)">2</button>
+        <button onclick="game.restartGame(3)">3</button>
+        <button onclick="game.restartGame(4)">4</button>
+        <button onclick="game.restartGame(5)">5</button>
+      </div>
     </div>
   </div>
   <div id="content" class="content"></div>
