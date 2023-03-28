@@ -1,9 +1,9 @@
 :root {
-  --backgroundMain: #005E29;
-  --layer1primary: #44E389;
-  --layer2primary: #00DE60;
-  --layer1secondary: #286141;
-  --layer2secondary: #00AD4B;
+  --backgroundMain: #162638;
+  --layer1primary: #2B486B;
+  --layer2primary: #497BB8;
+  --layer1secondary: #8199B8;
+  --layer2secondary: #5C6E84;
 }
 
 html,
@@ -68,8 +68,10 @@ body {
 
   & > .introduction {
     color: var(--layer1secondary);
-    font-size: 16px;
+    font-size: 14px;
     line-height: 16px;
+    text-transform: uppercase;
+    letter-spacing: 8px;
     margin: 0 auto 8px;
     text-align: center;
   }

@@ -1,3 +1,23 @@
+@media (max-width: 600px), (max-height: 600px) {
+  :root {
+    --block-size: 40px;
+    --block-font-size: 20px; } }
+
+@media (min-width: 600px) {
+  :root {
+    --block-size: 60px;
+    --block-font-size: 30px; } }
+
+@media (min-width: 768px) {
+  :root {
+    --block-size: 70px;
+    --block-font-size: 35px; } }
+
+@media (min-width: 992px) {
+  :root {
+    --block-size: 80px;
+    --block-font-size: 40px; } }
+
 .completed {
   display: none;
   position: absolute;
@@ -15,20 +35,21 @@
   display: none;
   border: 3px solid var(--layer2primary);
   border-radius: 20px;
-  padding: 20px; }
+  padding: 20px;
+  background-color: var(--backgroundMain); }
   .field.shown {
     display: block; }
   .field > div {
     display: flex; }
     .field > div > span {
       display: block;
-      width: 80px;
-      height: 80px;
+      width: var(--block-size);
+      height: var(--block-size);
       border: 1px solid transparent;
       border-radius: 5px;
       text-align: center;
-      font-size: 40px;
-      line-height: 80px;
+      font-size: var(--block-font-size);
+      line-height: var(--block-size);
       margin: 6px;
       transition: scale .3s;
       -webkit-user-select: none;
@@ -42,7 +63,8 @@
       .field > div > span:hover {
         scale: 105%; }
       .field > div > span.active {
-        color: var(--layer2primary);
+        color: var(--layer1primary);
+        background-color: var(--layer2primary);
         scale: 105%; }
       .field > div > span.blocked {
         animation: shake-block 0.3s; }
@@ -98,11 +120,11 @@
     transform: translate(100%, 0); } }
 
 :root {
-  --backgroundMain: #005E29;
-  --layer1primary: #44E389;
-  --layer2primary: #00DE60;
-  --layer1secondary: #286141;
-  --layer2secondary: #00AD4B; }
+  --backgroundMain: #162638;
+  --layer1primary: #2B486B;
+  --layer2primary: #497BB8;
+  --layer1secondary: #8199B8;
+  --layer2secondary: #5C6E84; }
 
 html,
 body {
@@ -155,7 +177,9 @@ body {
         border-color: var(--layer2secondary); }
   .menu > .introduction {
     color: var(--layer1secondary);
-    font-size: 16px;
+    font-size: 14px;
     line-height: 16px;
+    text-transform: uppercase;
+    letter-spacing: 8px;
     margin: 0 auto 8px;
     text-align: center; }

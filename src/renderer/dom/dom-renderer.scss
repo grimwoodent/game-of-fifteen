@@ -1,4 +1,33 @@
-$blockSize: 80px;
+@media (max-width: 600px), (max-height: 600px) {
+  :root {
+    --block-size: 40px;
+    --block-font-size: 20px;
+  }
+}
+
+@media (min-width: 600px) {
+  :root {
+    --block-size: 60px;
+    --block-font-size: 30px;
+  }
+}
+
+@media (min-width: 768px) {
+  :root {
+    --block-size: 70px;
+    --block-font-size: 35px;
+  }
+}
+
+@media (min-width: 992px) {
+  :root {
+    --block-size: 80px;
+    --block-font-size: 40px;
+  }
+}
+
+$blockSize: var(--block-size);
+$blockFontSize: var(--block-font-size);
 $moveAnimationTime: 0.31s;
 $shakeAnimation: shake-block 0.3s;
 $moveUpAnimation: move-up-block $moveAnimationTime;
@@ -27,6 +56,7 @@ $moveRightAnimation: move-right-block $moveAnimationTime;
   border: 3px solid var(--layer2primary);
   border-radius: 20px;
   padding: 20px;
+  background-color: var(--backgroundMain);
 
   &.shown {
     display: block;
@@ -42,7 +72,7 @@ $moveRightAnimation: move-right-block $moveAnimationTime;
       border: 1px solid transparent;
       border-radius: 5px;
       text-align: center;
-      font-size: $blockSize / 2;
+      font-size: $blockFontSize;
       line-height: $blockSize;
       margin: 6px;
       transition: scale .3s;
@@ -63,7 +93,8 @@ $moveRightAnimation: move-right-block $moveAnimationTime;
       }
 
       &.active {
-        color: var(--layer2primary);
+        color: var(--layer1primary);
+        background-color: var(--layer2primary);
         scale: 105%;
       }
 
