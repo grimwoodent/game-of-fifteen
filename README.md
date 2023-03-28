@@ -8,7 +8,7 @@
 
 #### Console controls
 
-- Start new Game for N-sized field:   
+- Start a new game for a field of size N:  
 ``` javascript
 game.restartGame(N);   
 ``` 
